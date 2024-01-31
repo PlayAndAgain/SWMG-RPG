@@ -16,11 +16,11 @@ class App:
     def mouvement(self):
         if pyxel.btnp(pyxel.KEY_UP) and self.player_y > 0 and pyxel.tilemaps[0].pget(self.player_x //8, self.player_y //8 -1) not in self.solide: 
             self.player_y -= 16
-        if pyxel.btnp(pyxel.KEY_DOWN) and self.player_y < 128 and pyxel.tilemaps[0].pget(self.player_x //8, self.player_y //8 -20) not in self.solide:
+        if pyxel.btnp(pyxel.KEY_DOWN) and self.player_y < 128 and pyxel.tilemaps[0].pget(self.player_x //8, (self.player_y+17)//8 ) not in self.solide:
             self.player_y += 16
         if pyxel.btnp(pyxel.KEY_LEFT) and self.player_x > 0 and pyxel.tilemaps[0].pget(self.player_x //8 -1, self.player_y //8) not in self.solide:
             self.player_x -= 16
-        if pyxel.btnp(pyxel.KEY_RIGHT) and self.player_x < 128 and pyxel.tilemaps[0].pget(self.player_x //8 +20, self.player_y //8 ) not in self.solide:
+        if pyxel.btnp(pyxel.KEY_RIGHT) and self.player_x < 128 and pyxel.tilemaps[0].pget((self.player_x+17) //8 , self.player_y //8 ) not in self.solide:
             self.player_x += 16
             
             
@@ -66,7 +66,6 @@ class App:
         
     
     def update(self):
-        print(pyxel.tilemaps[0].pget(self.player_x //8, self.player_y //8 -20))
         if self.state == "Gameplay":
             self.mouvement()
             if pyxel.btnp(pyxel.KEY_SPACE):
