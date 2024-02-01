@@ -6,6 +6,7 @@ class App:
         pyxel.load("res.pyxres")
         self.player_x=64
         self.player_y=64
+        self.direction = "left"
         self.PV = 60
         self.MP = 40
         self.PV_ennemi = 60
@@ -18,14 +19,25 @@ class App:
 
         
     def mouvement(self):
-        if pyxel.btnp(pyxel.KEY_UP) and self.player_y > 0 and pyxel.tilemaps[0].pget(self.player_x //8, self.player_y //8 -1) not in self.solide: 
-            self.player_y -= 16
-        if pyxel.btnp(pyxel.KEY_DOWN) and self.player_y < 128 and pyxel.tilemaps[0].pget(self.player_x //8, (self.player_y+17)//8 ) not in self.solide:
-            self.player_y += 16
-        if pyxel.btnp(pyxel.KEY_LEFT) and self.player_x > 0 and pyxel.tilemaps[0].pget(self.player_x //8 -1, self.player_y //8) not in self.solide:
-            self.player_x -= 16
-        if pyxel.btnp(pyxel.KEY_RIGHT) and self.player_x < 128 and pyxel.tilemaps[0].pget((self.player_x+17) //8 , self.player_y //8 ) not in self.solide:
-            self.player_x += 16
+        if pyxel.btnp(pyxel.KEY_UP) and self.player_y > 0: 
+            self.direction = "up"
+            if pyxel.tilemaps[0].pget(self.player_x //8, self.player_y //8 -1) not in self.solide :
+                self.player_y -= 16
+                
+        if pyxel.btnp(pyxel.KEY_DOWN) and self.player_y < 128 :
+            self.direction = "down"
+            if pyxel.tilemaps[0].pget(self.player_x //8, (self.player_y+17)//8 ) not in self.solide :
+                self.player_y += 16
+            
+        if pyxel.btnp(pyxel.KEY_LEFT) and self.player_x > 0 :
+            self.direction = "left"
+            if pyxel.tilemaps[0].pget(self.player_x //8 -1, self.player_y //8) not in self.solide :
+                self.player_x -= 16
+            
+        if pyxel.btnp(pyxel.KEY_RIGHT) and self.player_x < 128 :
+            self.direction = "right"
+            if pyxel.tilemaps[0].pget((self.player_x+17) //8 , self.player_y //8 ) not in self.solide:
+                self.player_x += 16
             
             
     def dessin_combat(self):
@@ -116,7 +128,17 @@ class App:
     
     def dessin_monde(self):
         pyxel.bltm(0,0, 0, 0,0, 144, 144)
-        pyxel.blt(self.player_x, self.player_y, 0, 0, 0, 16, 16, 13)
+        self.dessin_joueur()
+
+    def dessin_joueur(self):
+        if self.direction == "up":
+            pyxel.blt(self.player_x, self.player_y, 0, 0, 16, 16, 16, 13)
+        if self.direction == "down":
+            pyxel.blt(self.player_x, self.player_y, 0, 0, 32, 16, 16, 13)
+        if self.direction == "left":
+            pyxel.blt(self.player_x, self.player_y, 0, 0, 0, 16, 16, 13)
+        if self.direction == "right":
+            pyxel.blt(self.player_x, self.player_y, 0, 0, 48, 16, 16, 13)
         
     
     def update(self):
