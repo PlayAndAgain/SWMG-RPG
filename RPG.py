@@ -10,6 +10,7 @@ class App:
         self.PV = 60
         self.MP = 40
         self.PV_ennemi = 60
+        self.animation = 0
         self.curseur=[0, 0]
         self.curseur_menu = 0
         self.solide=[(4,0), (4,1), (5,0), (5,1), (6,0), (6,1), (7,0), (7,1), (8,0), (8,1), (9,0), (9,1)]
@@ -156,6 +157,7 @@ class App:
                 self.dep_curseur_combat()
                 if pyxel.btnp(pyxel.KEY_SPACE):
                     if self.curseur == [0,0]:
+                        pyxel.play(0,1)
                         self.PV_ennemi -= 20
                 if pyxel.btnp(pyxel.KEY_C):
                    self.state = "Gameplay"
@@ -187,6 +189,16 @@ class App:
             
         if self.state == "Combat":
             self.dessin_combat()
+            
+            if pyxel.btnp(pyxel.KEY_SPACE):
+                if self.curseur == [0,0]:
+                    self.animation = 30
+                    self.frame = pyxel.frame_count
+                    while self.animation != 0:
+                        pyxel.blt(65,50, 1, 0, 8, 16, pyxel.frame_count //0.4 %32, 0)
+                        if self.frame != pyxel.frame_count:
+                            self.frame = pyxel.frame_count
+                        self.animation -= 1
             
             
             
