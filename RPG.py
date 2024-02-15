@@ -6,39 +6,52 @@ class App:
         pyxel.load("res.pyxres")
         self.player_x=64
         self.player_y=64
+        self.map_x = 0
+        self.map_y = 0
         self.direction = "left"
         self.PV = 60
         self.MP = 40
+        self.frame = 0
         self.PV_ennemi = 60
-        self.animation = 0
         self.curseur=[0, 0]
         self.curseur_menu = 0
         self.solide=[(4,0), (4,1), (5,0), (5,1), (6,0), (6,1), (7,0), (7,1), (8,0), (8,1), (9,0), (9,1)]
         self.state="Gameplay" #peut etre Gameplay, Dialogue, Combat
         pyxel.run(self.update, self.draw)
         
-
-        
     def mouvement(self):
         if pyxel.btnp(pyxel.KEY_UP) and self.player_y > 0: 
-            self.direction = "up"
-            if pyxel.tilemaps[0].pget(self.player_x //8, self.player_y //8 -1) not in self.solide :
-                self.player_y -= 16
-                
+                self.direction = "up"
+                if pyxel.tilemaps[0].pget((self.player_x+ self.map_x)//8 , (self.player_y+ self.map_y) //8  -1) not in self.solide :
+                    if self.player_y > 32:
+                        self.player_y -= 16
+                    else:
+                        self.map_y -= 16
+                    
+                    
         if pyxel.btnp(pyxel.KEY_DOWN) and self.player_y < 128 :
-            self.direction = "down"
-            if pyxel.tilemaps[0].pget(self.player_x //8, (self.player_y+17)//8 ) not in self.solide :
-                self.player_y += 16
-            
+                self.direction = "down"
+                if pyxel.tilemaps[0].pget((self.player_x+ self.map_x )//8, (self.player_y+ self.map_y+17)//8 ) not in self.solide :
+                    if self.player_y < 96:
+                        self.player_y += 16
+                    else:
+                        self.map_y += 16
+                
         if pyxel.btnp(pyxel.KEY_LEFT) and self.player_x > 0 :
-            self.direction = "left"
-            if pyxel.tilemaps[0].pget(self.player_x //8 -1, self.player_y //8) not in self.solide :
-                self.player_x -= 16
-            
+                self.direction = "left"
+                if pyxel.tilemaps[0].pget((self.player_x+ self.map_x) //8 -1, (self.player_y+ self.map_y )//8) not in self.solide :
+                    if self.player_x > 32:
+                        self.player_x -=16
+                    else:
+                        self.map_x -= 16
+                
         if pyxel.btnp(pyxel.KEY_RIGHT) and self.player_x < 128 :
-            self.direction = "right"
-            if pyxel.tilemaps[0].pget((self.player_x+17) //8 , self.player_y //8 ) not in self.solide:
-                self.player_x += 16
+                self.direction = "right"
+                if pyxel.tilemaps[0].pget((self.player_x+17+ self.map_x) //8 , (self.player_y+ self.map_y)//8 ) not in self.solide:
+                    if self.player_x < 96:
+                        self.player_x += 16
+                    else:
+                        self.map_x += 16
             
             
     def dessin_combat(self):
@@ -128,7 +141,7 @@ class App:
         pyxel.text(115, 44, "Sauv.", 7)
     
     def dessin_monde(self):
-        pyxel.bltm(0,0, 0, 0,0, 144, 144)
+        pyxel.bltm(0,0, 0, self.map_x, self.map_y, 144, 144)
         self.dessin_joueur()
 
     def dessin_joueur(self):
@@ -189,19 +202,20 @@ class App:
             
         if self.state == "Combat":
             self.dessin_combat()
+            #pyxel.blt(65,50, 1, 0, 8, 16, (pyxel.frame_count-self.frame)//0.4%32, 0)
+        
+                
             
-            if pyxel.btnp(pyxel.KEY_SPACE):
-                if self.curseur == [0,0]:
-                    self.animation = 30
-                    self.frame = pyxel.frame_count
-                    while self.animation != 0:
-                        pyxel.blt(65,50, 1, 0, 8, 16, pyxel.frame_count //0.4 %32, 0)
-                        if self.frame != pyxel.frame_count:
-                            self.frame = pyxel.frame_count
-                        self.animation -= 1
+            
+        
+            
+
+                    
+
             
             
             
 
 App()
-
+                    
+                    
