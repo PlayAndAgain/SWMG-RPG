@@ -4,28 +4,32 @@ class App:
     def __init__(self, WIDTH=144, HEIGHT=144):
         pyxel.init(WIDTH, HEIGHT, "RPG",  display_scale=4)
         pyxel.load("res.pyxres")
+        
+        #Affichage
         self.player_x=64
         self.player_y=64
         self.map_x = 0
         self.map_y = 0
-        self.direction = "left"
-        self.PV = 60
-        self.MP = 40
-        self.tour = True
-        self.stats = {"PV_max":60, "MP_max":40, "Att":20, "Def":10, "Mag":20}
-        self.PV_ennemi = 60
         self.curseur=[0, 0]
         self.curseur_menu = 0
-        self.solide=[(4,0), (4,1), (5,0), (5,1), (6,0), (6,1), (7,0), (7,1), (8,0), (8,1), (9,0), (9,1), (4,2), (5,2), (4,3), (5,3), (6,2), (6,3), (7,2), (7,3)]
-        self.state="Gameplay" #peut etre Gameplay, Dialogue, Combat ou Title
+        self.direction = "left"
         
-         #Monstres
+        #Monstres
         self.necromancien = Monstre(80, 10, 20, 16, 48)
         self.masque = Monstre(60, 20, 30, 16, 0)
         self.rencontres = [self.necromancien, self.masque]
         
-        #stats
-        self.PV_MAX = 60
+        #Stats
+        self.stats = {"PV_max":60, "MP_max":40, "Att":20, "Def":10, "Mag":20}
+        self.PV = self.stats["PV_max"]
+        self.MP = self.stats["MP_max"]
+        
+        #Interne
+        self.tour = True
+        self.PV_ennemi = 60
+        self.solide=[(4,0), (4,1), (5,0), (5,1), (6,0), (6,1), (7,0), (7,1), (8,0), (8,1), (9,0), (9,1), (4,2), (5,2), (4,3), (5,3), (6,2), (6,3), (7,2), (7,3)]
+        self.state="Gameplay" #peut etre Gameplay, Dialogue, Combat ou Title
+        self.frame=0
         
         pyxel.run(self.update, self.draw)
         
@@ -73,31 +77,31 @@ class App:
             self.state = "Combat"
             
     def dessin_PV(self):
-        if self.PV == self.PV_MAX:
+        if self.PV == self.stats["PV_max"]:
             pass
-        elif (self.PV*100)/self.PV_MAX >90:
+        elif (self.PV*100)/self.stats["PV_max"] >90:
             pyxel.rect(127, 119, 3, 3, 8)
-        elif (self.PV*100)/self.PV_MAX >80:
+        elif (self.PV*100)/self.stats["PV_max"] >80:
             pyxel.rect(124, 119, 6, 3, 8)
-        elif (self.PV*100)/self.PV_MAX >70:
+        elif (self.PV*100)/self.stats["PV_max"] >70:
             pyxel.rect(121, 119, 9, 3, 8)
-        elif (self.PV*100)/self.PV_MAX >60:
+        elif (self.PV*100)/self.stats["PV_max"] >60:
             pyxel.rect(118, 119, 12, 3, 8)
-        elif (self.PV*100)/self.PV_MAX >50:
+        elif (self.PV*100)/self.stats["PV_max"] >50:
             pyxel.rect(115, 119, 15, 3, 8)
-        elif (self.PV*100)/self.PV_MAX >40:
+        elif (self.PV*100)/self.stats["PV_max"] >40:
             pyxel.rect(112, 119, 18, 3, 8)
-        elif (self.PV*100)/self.PV_MAX >30:
+        elif (self.PV*100)/self.stats["PV_max"] >30:
             pyxel.rect(109, 119, 21, 3, 8)
-        elif (self.PV*100)/self.PV_MAX >20:
+        elif (self.PV*100)/self.stats["PV_max"] >20:
             pyxel.rect(106, 119, 24, 3, 8)
-        elif (self.PV*100)/self.PV_MAX >10:
+        elif (self.PV*100)/self.stats["PV_max"] >10:
             pyxel.rect(103, 119, 27, 3, 8)
-        elif (self.PV*100)/self.PV_MAX > 0:
+        elif (self.PV*100)/self.stats["PV_max"] > 0:
             pyxel.rect(101, 119, 29, 3, 8)
-        elif (self.PV*100)/self.PV_MAX <= 0:
+        elif (self.PV*100)/self.stats["PV_max"] <= 0:
             pyxel.rect(100, 119, 30, 3, 8)
-        
+       
     
             
             
@@ -207,6 +211,9 @@ class App:
             pyxel.blt(self.player_x, self.player_y, 0, 0, 48, 16, 16, 13)
         
     
+    
+    
+    #UPDATE&DRAW
     def update(self):
         if self.state == "Gameplay":
             self.mouvement()
@@ -215,29 +222,24 @@ class App:
 
             
         elif self.state == "Combat":
-            if self.PV_ennemi <= 0:
+            if self.PV_ennemi <= 0 and not self.frame > 0:
                 self.state = "Gameplay"
             if self.tour == True:
                 self.dep_curseur_combat()
                 if pyxel.btnp(pyxel.KEY_SPACE):
                     if self.curseur == [0,0]:
                         pyxel.play(0,1)
-                        self.PV_ennemi -= 20
+                        self.PV_ennemi-= 20
                 if pyxel.btnp(pyxel.KEY_C):
                    self.state = "Gameplay"
-                
-                   
-            
-        
+             
+             
         elif self.state == "Menu":
             if pyxel.btnp(pyxel.KEY_TAB):
                 self.state = "Gameplay"
             self.dep_curseur_menu()
 
             
-        
-        
-    
     def draw(self):
         pyxel.cls(0)
         
@@ -254,10 +256,17 @@ class App:
             
 
                 
-            
         if self.state == "Combat":
             self.dessin_combat()
-            #pyxel.blt(65,50, 1, 0, 8, 16, (pyxel.frame_count-self.frame)//0.4%32, 0)
+            
+            if pyxel.btnp(pyxel.KEY_SPACE):
+                self.frame=32
+            elif self.frame>0:
+                self.frame-=2
+                
+            if self.frame>0:
+                pyxel.blt(65,50, 1, 0, 8, 16, 32-self.frame, 0)
+                
 
 class Monstre:
     def __init__(self, p, a, d, x, y ):
