@@ -11,12 +11,12 @@ DONE :
 -Combat menu interface and cursor 
 -Character oriented depending on the direction
 -Menu
+-Scrolling
+-Ennemy encounter
 
 TO DO : 
-Scrolling
 Movement animation 
 Working Menu
-Ennemy encounter
 Ennemy encounter transition
 Character Stats
 Leveling system
