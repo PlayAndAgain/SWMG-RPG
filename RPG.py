@@ -12,11 +12,12 @@ class App:
         self.map_y = 0
         self.curseur=[0, 0]
         self.curseur_menu = 0
+        self.curseur_sort = 0
         self.direction = "left"
         
         #Monstres
-        self.necromancien = Monstre(80, 10, 20, 16, 48)
-        self.masque = Monstre(60, 20, 30, 16, 0)
+        self.necromancien = Monstre(80, 10, 20, 16, 48, 20)
+        self.masque = Monstre(60, 20, 30, 16, 0, 20)
         self.rencontres = [self.necromancien, self.masque]
         
         #Stats
@@ -31,6 +32,7 @@ class App:
         self.solide=[(4,0), (4,1), (5,0), (5,1), (6,0), (6,1), (7,0), (7,1), (8,0), (8,1), (9,0), (9,1), (4,2), (5,2), (4,3), (5,3), (6,2), (6,3), (7,2), (7,3)]
         self.state="Gameplay" #peut etre Gameplay, Dialogue, Combat ou Title
         self.animation_combat = {"tranche":0, "feu":0, "glace":0}
+        self.menu_sort = False
         
         pyxel.run(self.update, self.draw)
         
@@ -38,6 +40,9 @@ class App:
     #Interne
     
     def mouvement(self):
+        """Permet le déplacement du personnage a l'aide des flèches directionelles, changeant la
+        direction dans laquelle il regarde, et en fonction de sa position et si il n'y a aucun
+        obstacle, déplace soit lui soit la carte, avant de lancer une potentiel rencontre de monstre"""
         if pyxel.btnp(pyxel.KEY_UP) and self.player_y > 0: 
                 self.direction = "up"
                 if pyxel.tilemaps[0].pget((self.player_x+ self.map_x)//8 , (self.player_y+ self.map_y) //8  -1) not in self.solide :
@@ -75,6 +80,7 @@ class App:
                     self.rencontre_aleatoire()
 
     def dep_curseur_menu(self):
+        """Permet le déplacement du curseur dans le menu de la carte"""
         if pyxel.btnp(pyxel.KEY_DOWN):
             if self.curseur_menu == 4:
                 self.curseur_menu = 0
@@ -91,6 +97,7 @@ class App:
                 pyxel.play(0, 0)
     
     def dep_curseur_combat(self):
+        """permet le déplacement du curseur en combat"""
         if pyxel.btnp(pyxel.KEY_UP) and  self.curseur[0] > 0:
             self.curseur[0]-=1
             pyxel.play(0, 0)
@@ -105,12 +112,15 @@ class App:
             pyxel.play(0, 0)
 
     def rencontre_aleatoire(self):
+        """1 chance sur 15 de déclencher un combat, puis choisit un monstre au hasard dans la table
+        de rencontres"""
         if random.randint(1,15) == 1:
             self.new_ms = self.rencontres[random.randint(0,len(self.rencontres)-1)]
             self.PV_ennemi = self.new_ms.msPV
             self.state = "Combat"
             
     def test_animation(self, dicanim):
+        """Renvoie True si aucune animation de la catégorie donnée est en cours, et False sinon"""
         for anim in dicanim:
             if dicanim[anim] > 0:
                 return False
@@ -122,6 +132,7 @@ class App:
     #Dessin   
             
     def dessin_menu(self):
+        """Dessin du menu de l'overworld"""
         pyxel.rect(104, 0, 40, 54, 7)
         pyxel.rect(106, 2, 36, 50, 0)
         if self.curseur_menu == 0:
@@ -140,13 +151,20 @@ class App:
         pyxel.text(115, 24, "Sorts", 7)
         pyxel.text(115, 34, "Equip.", 7)
         pyxel.text(115, 44, "Sauv.", 7)
+        
+    def dessin_menu_sort(self, orx, ory):
+        pyxel.rect(orx, ory, 40, 36, 7)
+        pyxel.rect(orx+2, ory+2, 36, 32, 0)
+        
     
     def dessin_monde(self):
+        """Dessin de la carte de jeu"""
         pyxel.bltm(0,0, 0, self.map_x, self.map_y, 144, 144)
         self.dessin_joueur()
           #pyxel.blt(0, 144-31, 2, 0, 0, 32, 32)
 
     def dessin_joueur(self):
+        """Dessine le joueur en fonction de sa position et sa direction"""
         if self.direction == "up":
             pyxel.blt(self.player_x, self.player_y, 0, 0, 16, 16, 16, 13)
         if self.direction == "down":
@@ -158,6 +176,7 @@ class App:
             
     
     def dessin_combat(self):
+        """Dessine la fenêtre de combat"""
         pyxel.rectb(1,113, 142,30, 7)
         pyxel.rectb(2,114, 140,28, 7)
         pyxel.text(90, 119, "PV", 7)
@@ -185,35 +204,40 @@ class App:
         pyxel.text(133, 119, str(self.PV), 7)
         pyxel.text(133, 134, str(self.MP), 7)
         pyxel.blt(50, 50, 1, self.new_ms.orix, self.new_ms.oriy, 32, 40, 0)
-        self.dessin_PV()
+        self.dessin_barre(100, 119, self.PV, self.stats["PV_max"], 8)
+        self.dessin_barre(100, 134, self.MP, self.stats["MP_max"], 1)
         #pyxel.text(45, 50, str(self.PV_ennemi), 7)
         
+        if self.menu_sort == True:
+            self.dessin_menu_sort(103,75)
         
-    def dessin_PV(self):
-        if self.PV == self.stats["PV_max"]:
+        
+    def dessin_barre(self, orx, ory, stat, statmax, col):
+        """Permet de dessiner une barre qui descend de 30 pixel de long"""
+        if stat == statmax:
             pass
-        elif (self.PV*100)/self.stats["PV_max"] >90:
-            pyxel.rect(127, 119, 3, 3, 8)
-        elif (self.PV*100)/self.stats["PV_max"] >80:
-            pyxel.rect(124, 119, 6, 3, 8)
-        elif (self.PV*100)/self.stats["PV_max"] >70:
-            pyxel.rect(121, 119, 9, 3, 8)
-        elif (self.PV*100)/self.stats["PV_max"] >60:
-            pyxel.rect(118, 119, 12, 3, 8)
-        elif (self.PV*100)/self.stats["PV_max"] >50:
-            pyxel.rect(115, 119, 15, 3, 8)
-        elif (self.PV*100)/self.stats["PV_max"] >40:
-            pyxel.rect(112, 119, 18, 3, 8)
-        elif (self.PV*100)/self.stats["PV_max"] >30:
-            pyxel.rect(109, 119, 21, 3, 8)
-        elif (self.PV*100)/self.stats["PV_max"] >20:
-            pyxel.rect(106, 119, 24, 3, 8)
-        elif (self.PV*100)/self.stats["PV_max"] >10:
-            pyxel.rect(103, 119, 27, 3, 8)
-        elif (self.PV*100)/self.stats["PV_max"] > 0:
-            pyxel.rect(101, 119, 29, 3, 8)
-        elif (self.PV*100)/self.stats["PV_max"] <= 0:
-            pyxel.rect(100, 119, 30, 3, 8)
+        elif (stat*100)/statmax >90:
+            pyxel.rect(orx+27, ory, 3, 3, col)
+        elif (stat*100)/statmax >80:
+            pyxel.rect(orx+24, ory, 6, 3, col)
+        elif (stat*100)/statmax >70:
+            pyxel.rect(orx+21, ory, 9, 3, col)
+        elif (stat*100)/statmax >60:
+            pyxel.rect(orx+18, ory, 12, 3, col)
+        elif (stat*100)/statmax >50:
+            pyxel.rect(orx+15, ory, 15, 3, col)
+        elif (stat*100)/statmax >40:
+            pyxel.rect(orx+12, ory, 18, 3, col)
+        elif (stat*100)/statmax >30:
+            pyxel.rect(orx+9, ory, 21, 3, col)
+        elif (stat*100)/statmax >20:
+            pyxel.rect(orx+6, ory, 24, 3, col)
+        elif (stat*100)/statmax >10:
+            pyxel.rect(orx+3, ory, 27, 3, col)
+        elif (stat*100)/statmax > 0:
+            pyxel.rect(orx+1, ory, 29, 3, col)
+        elif (stat*100)/statmax <= 0:
+            pyxel.rect(orx, ory, 30, 3, col)
     
 
     
@@ -234,9 +258,23 @@ class App:
                 if pyxel.btnp(pyxel.KEY_SPACE):
                     if self.curseur == [0,0]:
                         pyxel.play(0,1)
-                        self.PV_ennemi-= 20
-                if pyxel.btnp(pyxel.KEY_C):
-                   self.state = "Gameplay"
+                        self.PV_ennemi -=20
+                    elif self.curseur == [1,0]:
+                        self.menu_sort = True
+                    
+                    elif self.curseur == [0,1]:
+                        pass
+                        
+                    elif self.curseur == [1,1]:
+                        if random.random() < 0.67:
+                            self.state = "Gameplay"
+                            self.PV_ennemi = 0
+                        else:
+                            print("Failed to escp")
+                        
+                    
+                
+                
              
              
         elif self.state == "Menu":
@@ -264,6 +302,7 @@ class App:
         if self.state == "Combat":
             self.dessin_combat()
             
+            
             if pyxel.btnp(pyxel.KEY_SPACE) and self.curseur==[0, 0] and self.test_animation(self.animation_combat):
                 self.animation_combat["tranche"]=32
             elif self.animation_combat["tranche"]>0:
@@ -274,12 +313,13 @@ class App:
                 
 
 class Monstre:
-    def __init__(self, p, a, d, x, y ):
+    def __init__(self, p, a, d, x, y, xp):
         self.msPV = p
         self.msAtt = a
         self.msdef = d
         self.orix = x
         self.oriy = y
+        self.exp = xp
                 
 App()
                     
