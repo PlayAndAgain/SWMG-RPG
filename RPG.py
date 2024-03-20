@@ -19,20 +19,24 @@ class App:
         self.necromancien = Monstre(80, 10, 20, 16, 48, 20)
         self.masque = Monstre(60, 20, 30, 16, 0, 20)
         self.rencontres = [self.necromancien, self.masque]
-        
-        #Stats
-        self.stats = {"PV_max":60, "MP_max":40, "Att":20, "Def":10, "Mag":20}
-        self.PV = self.stats["PV_max"]
-        self.MP = self.stats["MP_max"]
-        self.sorts = ["feu"]
+          
         
         #Interne
         self.tour = True
         self.PV_ennemi = 60
         self.solide=[(4,0), (4,1), (5,0), (5,1), (6,0), (6,1), (7,0), (7,1), (8,0), (8,1), (9,0), (9,1), (4,2), (5,2), (4,3), (5,3), (6,2), (6,3), (7,2), (7,3)]
-        self.state="Gameplay" #peut etre Gameplay, Dialogue, Combat ou Title
+        self.state="Titre" #peut etre Gameplay, Dialogue, Combat ou Titre
         self.animation_combat = {"tranche":0, "feu":0, "glace":0}
         self.menu_sort = False
+        
+        #sorts
+        self.feu = Sort("feu", self.PV_ennemi, 30, 5, 48, 0)
+        
+        #Stats
+        self.stats = {"PV_max":60, "MP_max":40, "Att":20, "Def":10, "Mag":20}
+        self.PV = self.stats["PV_max"]
+        self.MP = self.stats["MP_max"]
+        self.sorts = [self.feu]
         
         pyxel.run(self.update, self.draw)
         
@@ -243,6 +247,11 @@ class App:
     
     #UPDATE&DRAW
     def update(self):
+        if self.state == "Titre":
+            if pyxel.btnp(pyxel.KEY_SPACE):
+                self.state = "Gameplay"
+        
+        
         if self.state == "Gameplay":
             self.mouvement()
             if pyxel.btnp(pyxel.KEY_TAB):
@@ -286,8 +295,12 @@ class App:
     def draw(self):
         pyxel.cls(0)
         
-        if self.state == "Title" :
+        if self.state == "Titre" :
             pyxel.blt(25, 25, 2, 0, 32, 89, 95-32, 0)
+            pyxel.text(53, 101, "COMMENCER", 3)
+            pyxel.text(52, 100, "COMMENCER", 7)
+            pyxel.blt(45, 98, 1, 0, 0, 8, 8, 0)
+            
         if self.state == "Gameplay" :
             self.dessin_monde()
 
@@ -320,6 +333,16 @@ class Monstre:
         self.orix = x
         self.oriy = y
         self.exp = xp
+        
+class Sort:
+    def __init__(self, nom, cible, degats, cout, orx, ory):
+        self.nom = nom
+        self.cible = cible
+        self.degats = degats
+        self.cout = cout
+        self.orx = orx
+        self.ory = ory
+        
                 
 App()
                     
