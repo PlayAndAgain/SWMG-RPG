@@ -14,20 +14,20 @@ DONE :
 -Scrolling
 -Ennemy encounter
 -Character Stats
+-Title Screen
 
 TO DO : 
-Movement animation 
-Working Menu
-Ennemy encounter transition
-Leveling system
-Combat system as a whole
-Spells
-Items
-Game Over
-Dialogue windows
-Title Screen
-Story & Map
-Possibility to save
-Music and SFX
+-Movement animation 
+-Working Menu
+-Ennemy encounter transition
+-Leveling system
+-Combat system as a whole
+-Spells
+-Items
+-Game Over
+-Dialogue windows and NPC
+-Story & Map
+-Possibility to save
+-Music and SFX
 
 
